@@ -5,7 +5,8 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from 'config';
-import User from './models/User'
+import User from './models/User';
+import auth from './middleware/auth';
 
 // Initialize express application
 const app = express();
@@ -93,3 +94,12 @@ app.post('/api/users',
 const port = 3001;
 app.listen(port, () => console.log(`Express server running on port ${port}`));
 
+app.get('/api/auth', auth , async(req,res) => {
+  try{
+    const user = await URLSearchParams.findById(req.user.id);
+    res.status(200).json(user);
+  }catch(error){
+    res.status(500).send('Uknown server error');
+  }
+
+});
