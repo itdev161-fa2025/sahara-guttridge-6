@@ -66,29 +66,13 @@ app.post('/api/users',
         // Save to the db and return
         await user.save();
         
-        // Generate and return a JWT token
-        const payload = {
-          user: {
-            id: user.id
-          }
-        }
-
-        jwt.sign(
-          payload,
-          config.get('jwtSecret'),
-          { expiresIn: '10hr' },
-          (err, token) => {
-            if (err) {
-              throw (err);              
-            }
-            res.json({ token: token });
-          }
-        );
-      } catch (error) {
+        returnToken(user, res);
+      }catch(error){
         res.status(500).send('Server error');
       }
     }
-});
+  }
+);
 
 // Connection listener
 const port = 3001;
@@ -103,3 +87,46 @@ app.get('/api/auth', auth , async(req,res) => {
   }
 
 });
+app.post(
+  '/api/login',
+  [
+    check('email','Please enter a valid email').isEmail(),
+    check('password', 'A password is required').exists()
+  ],
+  async(req, res) =>{
+    const errors = validationResukt(req);
+    if(!errors.isEmpty()){
+      return res.status(422).json({errors: errors.array()});
+    } else{
+      const{email, password} = req.body;
+      try{
+        let user = await User.findOne({email: email});
+        if(!user){
+          return res
+          .status(400)
+          .json({errors:[{msg: 'Invalid email or password'}]});
+        }
+        returnToken(user, res);
+      }
+      catch(error){
+        res.satus(500).send('Server error');
+      }
+    }
+  }
+);
+const returnToken = (user, res) => {
+  const payload ={
+    user: {
+      id: user.id
+    }
+  };
+  jwt.sign(
+    payload,
+    config.get('jwtSecret'),
+    { expiresIn: '10hr'},
+    (err, token) =>{
+      if (err) throw err;
+      res.json({ token: token});
+    }
+  );
+};

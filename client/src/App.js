@@ -32,3 +32,20 @@ class App extends React.Component {
 }
 
 export default App;
+<><header className='App-Header'>
+
+  <h1>GoodThings</h1>
+  <ul>
+    <li><Link to="/">Home</Link></li>
+    <li><Link to="/register">Register</Link></li>
+    {user ?
+      <li><Link to="" onClick={this.logOut}>Log out</Link></li> :
+      <li><Link to="/login">Log in</Link></li>}
+  </ul>
+</header><main>
+    <Routes>
+      <Route path="/" element={<Home user={user} data={data} />} />
+      <Route path="/register" element={<Register {...authProps} />} />
+      <Route path="/login" element={<Login {...authProps} />} />
+    </Routes>
+  </main></>;
